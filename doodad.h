@@ -3,6 +3,9 @@
 
 #include "terrain.h"
 
+/*
+ * Doodads are simply terrain without collision
+ */
 
 class Doodad : public Terrain
 {

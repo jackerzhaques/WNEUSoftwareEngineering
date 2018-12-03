@@ -8,9 +8,72 @@ Spritesheet::Spritesheet(QObject *parent) : QObject(parent)
     this->SpriteTimer->start(this->SpriteTimePeriod);
 }
 
+Spritesheet::Spritesheet(Spritesheet *CopySpritesheetPtr)
+{
+    //Copy the sprite source
+    QPixmap SpriteSource = CopySpritesheetPtr->SpriteSource.copy();
+    this->SetSpriteSource(SpriteSource);
+
+    //Copy the sprite rect lists if they exist
+    //If we do not check them for empty, an exception will be thrown.
+    if(!CopySpritesheetPtr->IdleSpriteList.isEmpty())
+        this->SetSprite(IDLE, CopySpritesheetPtr->IdleSpriteList);
+
+    if(!CopySpritesheetPtr->WalkSpriteList.isEmpty())
+        this->SetSprite(WALK, CopySpritesheetPtr->WalkSpriteList);
+
+    if(!CopySpritesheetPtr->AttackSpriteList.isEmpty())
+        this->SetSprite(ATTACK, CopySpritesheetPtr->AttackSpriteList);
+
+    if(!CopySpritesheetPtr->ShootSpriteList.isEmpty())
+        this->SetSprite(SHOOT, CopySpritesheetPtr->ShootSpriteList);
+
+    if(!CopySpritesheetPtr->DeathSpriteList.isEmpty())
+        this->SetSprite(DEATH, CopySpritesheetPtr->DeathSpriteList);
+
+    if(!CopySpritesheetPtr->CrouchSpriteList.isEmpty())
+        this->SetSprite(CROUCH, CopySpritesheetPtr->CrouchSpriteList);
+
+    if(!CopySpritesheetPtr->JumpSpriteList.isEmpty())
+        this->SetSprite(JUMP, CopySpritesheetPtr->JumpSpriteList);
+
+    if(!CopySpritesheetPtr->FallSpriteList.isEmpty())
+        this->SetSprite(FALL, CopySpritesheetPtr->FallSpriteList);
+
+    if(!CopySpritesheetPtr->ChannelSpriteList.isEmpty())
+        this->SetSprite(CHANNEL, CopySpritesheetPtr->ChannelSpriteList);
+
+    //Copy over the loops booleans
+    this->SetSpriteLoops(IDLE, CopySpritesheetPtr->IdleSpriteLoops);
+    this->SetSpriteLoops(WALK, CopySpritesheetPtr->WalkSpriteLoops);
+    this->SetSpriteLoops(ATTACK, CopySpritesheetPtr->AttackSpriteLoops);
+    this->SetSpriteLoops(SHOOT, CopySpritesheetPtr->ShootSpriteLoops);
+    this->SetSpriteLoops(DEATH, CopySpritesheetPtr->DeathSpriteLoops);
+    this->SetSpriteLoops(CROUCH, CopySpritesheetPtr->CrouchSpriteLoops);
+    this->SetSpriteLoops(JUMP, CopySpritesheetPtr->JumpSpriteLoops);
+    this->SetSpriteLoops(FALL, CopySpritesheetPtr->FallSpriteLoops);
+    this->SetSpriteLoops(CHANNEL, CopySpritesheetPtr->ChannelSpriteLoops);
+
+    //Copy over the remaining states
+    this->SetDirection(CopySpritesheetPtr->GetDirection());
+    this->SetCurrentSpritesheet(IDLE);
+    this->SetScalingFactor(CopySpritesheetPtr->GetScalingFactor());
+
+    //Finally initialize this sprite
+    this->SpriteTimer = new QTimer(this);
+
+    connect(this->SpriteTimer, SIGNAL(timeout()), this, SLOT(UpdateSpriteAnimation()));
+    this->SpriteTimer->start(this->SpriteTimePeriod);
+}
+
 void Spritesheet::SetDirection(Spritesheet::Direction Dir)
 {
     this->Dir = Dir;
+}
+
+Spritesheet::Direction Spritesheet::GetDirection()
+{
+    return this->Dir;
 }
 
 void Spritesheet::SetSpriteTimePeriod(int TimePeriodInMs)
@@ -154,20 +217,30 @@ void Spritesheet::SetCurrentSpritesheet(Spritesheet::SpriteType Type)
     this->GetCurrentSprite();
 }
 
+void Spritesheet::SetScalingFactor(double ScalingFactor)
+{
+    this->ScalingFactor = ScalingFactor;
+}
+
+double Spritesheet::GetScalingFactor()
+{
+    return this->ScalingFactor;
+}
+
+void Spritesheet::ReverseDefaultDirection()
+{
+    this->DefaultDirectionIsReversed = !this->DefaultDirectionIsReversed;
+}
+
 void Spritesheet::UpdateSpriteAnimation()
 {
+    qDebug() << "Sprites";
     //Go to the next sprite
     this->AdvanceSpriteIndex();
 
     //Locate the pixmap of our next sprite.
     this->GetCurrentSprite();
-
-    //Check any collision if this is an attack frame
-    if(this->InAttackState){
-        if(this->CurrentSpriteIndex >= this->MinIndexForAttackCollision && this->CurrentSpriteIndex <= this->MaxIndexForAttackCollision){
-            this->CheckAttackCollision();
-        }
-    }
+    qDebug() << "srpiteee";
 }
 
 int Spritesheet::AdvanceSpriteIndex()
@@ -191,19 +264,11 @@ int Spritesheet::AdvanceSpriteIndex()
     return this->CurrentSpriteIndex;
 }
 
-/*
- * TODO: Implement this function once collision detection is implemented
- */
-double Spritesheet::CheckAttackCollision()
-{
-    return 0;
-}
-
 void Spritesheet::MirrorSprite()
 {
     //Mirror the sprite across the Y axis if we are facing left
     //Sprites are assumed to be facing right normally.
-    if(this->Dir == Direction::LEFT){
+    if((this->Dir == Direction::LEFT && !this->DefaultDirectionIsReversed) || (this->Dir == Direction::RIGHT && this->DefaultDirectionIsReversed)){
         this->CurrentSprite = this->CurrentSprite.transformed(QTransform().scale(-1,1));
     }
 }
@@ -213,8 +278,16 @@ QPixmap Spritesheet::GetCurrentSprite()
     QList<QRect> SpriteList = this->CurrentSpriteList;
     int CurrentIndex = this->CurrentSpriteIndex;
 
+
+    //Grab the current pixmap
     QRect CurrentSpriteRect = SpriteList.at(CurrentIndex);
-    this->CurrentSprite = this->SpriteSource.copy(CurrentSpriteRect);
+    QPixmap UnscaledPixmap = this->SpriteSource.copy(CurrentSpriteRect);
+
+    //Scale the pixmap
+    int ScaledWidth = static_cast<int>(UnscaledPixmap.width() * this->ScalingFactor);
+    int ScaledHeight = static_cast<int>(UnscaledPixmap.height() * this->ScalingFactor);
+
+    this->CurrentSprite = UnscaledPixmap.scaled(ScaledWidth, ScaledHeight);
 
     //Mirror the sprite if we are facing a different direction
     this->MirrorSprite();

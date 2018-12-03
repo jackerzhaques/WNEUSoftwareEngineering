@@ -6,16 +6,18 @@
 #include <QMediaPlayer>
 
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsRectItem>
 #include <QList>
 #include <QRect>
 #include <QPointF>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QMatrix>
 
-#include "camera.h"
-#include "spritesheet.h"
-#include "entity.h"
-#include "terrain.h"
+#include "scene.h"
+#include "game.h"
+
+#define DEFAULT_WINDOW_HEIGHT   1000
+#define DEFAULT_WINDOW_WIDTH    1000
 
 namespace Ui {
 class MainWindow;
@@ -30,24 +32,26 @@ public:
     ~MainWindow();
 
 public slots:
-    void UpdateSprite(QPixmap Sprite);
-    void MoveEntity();
 
 private:
     Ui::MainWindow *ui;
 
+    void ScaleToUsersDevice();
+    double WindowScalingFactor = 1;
+
     enum ViewChooserPages{
-        MainMenu,
-        Game
+        MAIN_MENU,
+        GAME
     };
 
-    QGraphicsScene *GraphicsScene = nullptr;
+    Scene *GraphicsScene = nullptr;
 
     QMediaPlaylist *BackgroundMusic;
     QMediaPlayer *MusicPlayer;
 
     Camera *camera = nullptr;
-    Entity *entity;
+
+    Game *game = nullptr;
 };
 
 #endif // MAINWINDOW_H

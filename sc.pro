@@ -39,11 +39,13 @@ SOURCES += \
     destructible.cpp \
     wall.cpp \
     item.cpp \
-    collisiondetection.cpp \
     ability.cpp \
     characterinterface.cpp \
     game.cpp \
-    spritesheet.cpp
+    spritesheet.cpp \
+    scene.cpp \
+    collisiondetection.cpp \
+    floatingtext.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -59,11 +61,13 @@ HEADERS += \
     destructible.h \
     wall.h \
     item.h \
-    collisiondetection.h \
     ability.h \
     characterinterface.h \
     game.h \
-    spritesheet.h
+    spritesheet.h \
+    scene.h \
+    collisiondetection.h \
+    floatingtext.h
 
 FORMS += \
         mainwindow.ui

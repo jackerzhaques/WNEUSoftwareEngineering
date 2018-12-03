@@ -7,25 +7,26 @@
 #include <QPixmap>
 #include <QRect>
 #include <QPoint>
+#include <QDebug>
 
-class Terrain : public QObject
+class Terrain : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
     explicit Terrain(QGraphicsScene *ScenePtr);
     void SetSprite(QPixmap Pixmap);
     void SetSprite(QPixmap Pixmap, QRect Rect);
-    void ScaleSprite(double ScalingFactor);
     void SetPosition(QPointF Pos);
+    void SetScalingFactor(double ScalingFactor);
+    double GetScalingFactor();
 
 signals:
 
 public slots:
 
 private:
-    QGraphicsPixmapItem *PixmapItem = nullptr;
     QGraphicsScene *ScenePtr = nullptr;
-    QPixmap UnscaledSprite;
+    double ScalingFactor = 1;
 };
 
 #endif // TERRAIN_H

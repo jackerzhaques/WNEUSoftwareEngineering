@@ -2,5 +2,5 @@
 
 Doodad::Doodad(QGraphicsScene *ScenePtr) : Terrain(ScenePtr)
 {
-
+    this->setZValue(0);
 }

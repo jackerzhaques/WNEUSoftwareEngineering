@@ -3,6 +3,10 @@
 
 #include "terrain.h"
 
+/*
+ * Walls are simply terrain with collision
+ */
+
 class Wall : public Terrain
 {
 public:

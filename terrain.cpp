@@ -4,15 +4,15 @@ Terrain::Terrain(QGraphicsScene *ScenePtr)
 {
     this->ScenePtr = ScenePtr;
 
-    this->PixmapItem = new QGraphicsPixmapItem();
+    this->ScenePtr->addItem(this);
 
-    this->ScenePtr->addItem(this->PixmapItem);
+    //Set the Z value of this object to be in front of background
+    this->setZValue(1);
 }
 
 void Terrain::SetSprite(QPixmap Pixmap)
 {
-    this->PixmapItem->setPixmap(Pixmap);
-    this->UnscaledSprite = Pixmap.copy();
+    this->setPixmap(Pixmap);
 }
 
 void Terrain::SetSprite(QPixmap Pixmap, QRect Rect)
@@ -21,15 +21,20 @@ void Terrain::SetSprite(QPixmap Pixmap, QRect Rect)
     this->SetSprite(CopiedPixmap);
 }
 
-void Terrain::ScaleSprite(double ScalingFactor)
-{
-    int NewWidth = (int)(this->UnscaledSprite.width() * ScalingFactor);
-    int NewHeight = (int)(this->UnscaledSprite.height() * ScalingFactor);
-    QPixmap ScaledSprite = this->UnscaledSprite.scaled(NewWidth, NewHeight);
-    this->PixmapItem->setPixmap(ScaledSprite);
-}
-
 void Terrain::SetPosition(QPointF Pos)
 {
-    this->PixmapItem->setPos(Pos);
+    this->setPos(Pos);
+}
+
+void Terrain::SetScalingFactor(double ScalingFactor)
+{
+    this->ScalingFactor = ScalingFactor;
+    int ScaledWidth = static_cast<int>(this->boundingRect().width() * ScalingFactor);
+    int ScaledHeight = static_cast<int>(this->boundingRect().height() * ScalingFactor);
+    this->setPixmap(this->pixmap().scaled(ScaledWidth,ScaledHeight));
+}
+
+double Terrain::GetScalingFactor()
+{
+    return this->ScalingFactor;
 }

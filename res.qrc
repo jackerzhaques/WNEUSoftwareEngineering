@@ -1,14 +1,17 @@
 <RCC>
     <qresource prefix="/">
         <file>assets/bg_mainmenu.png</file>
+        <file>assets/bg_game.png</file>
     </qresource>
     <qresource prefix="/assets/sounds/music/backgrounds/ObservingTheStar.mp3">
         <file>assets/ObservingTheStar.mp3</file>
     </qresource>
     <qresource prefix="/sprites">
         <file>assets/elisa.png</file>
+        <file>assets/Skeleton.png</file>
     </qresource>
     <qresource prefix="/walls">
         <file>assets/twilight-tiles.png</file>
+        <file>assets/Tiles-Background-Removed.png</file>
     </qresource>
 </RCC>

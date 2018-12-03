@@ -15,6 +15,7 @@ class Spritesheet : public QObject
     Q_OBJECT
 public:
     explicit Spritesheet(QObject *parent = nullptr);
+    explicit Spritesheet(Spritesheet *CopySpritesheetPtr);
 
     enum Direction{
         LEFT,
@@ -33,7 +34,10 @@ public:
         CHANNEL
     };
 
+    static void LoadSpriteFromSheet(QPixmap Sheet, QRect BoundingRect, double ScalingFactor);
+
     void SetDirection(Direction Dir);
+    Direction GetDirection();
     void SetSpriteTimePeriod(int TimePeriodInMs);
     void StartSpriteTimer();
     void PauseSpriteTimer();
@@ -45,9 +49,13 @@ public:
     void SetSprite(SpriteType Type, QList<QRect> RectList);
     void SetSpriteLoops(SpriteType Type, bool SpriteLoops);
     void SetCurrentSpritesheet(SpriteType Type);
+    void SetScalingFactor(double ScalingFactor);
+    double GetScalingFactor();
 
     //The current pixmap of the spritesheet
     QPixmap CurrentSprite;
+
+    void ReverseDefaultDirection();
 
 signals:
     void StateChangedToIdle();
@@ -58,7 +66,6 @@ public slots:
 
 private:
     int AdvanceSpriteIndex();
-    double CheckAttackCollision();
     void MirrorSprite();
     QPixmap GetCurrentSprite();
 
@@ -86,15 +93,22 @@ private:
     bool WalkSpriteLoops = true;
     bool AttackSpriteLoops = false;
     bool ShootSpriteLoops = false;
-    bool DeathSpriteLoops = false;
+    bool DeathSpriteLoops = true;
     bool CrouchSpriteLoops = false;
     bool JumpSpriteLoops = true;
     bool FallSpriteLoops = true;
     bool ChannelSpriteLoops = true;
 
+    QList<int> SpritePaddingY;
+    QList<int> SpritePaddingX;
+
     bool InAttackState = false;
     int MinIndexForAttackCollision = 3;
     int MaxIndexForAttackCollision = 6;
+
+    double ScalingFactor = 1;
+
+    bool DefaultDirectionIsReversed = false;
 
 };
 

@@ -31,12 +31,18 @@
 #include <QTimer>
 #include <QGraphicsView>
 #include <QDebug>
+#include <QMatrix>
+
+#include "entity.h"
 
 class Camera : public QObject
 {
     Q_OBJECT
 public:
     explicit Camera(QObject *parent = nullptr, QGraphicsView *GraphicsViewPointer = nullptr);
+    void FollowEntity(Entity *entity);
+    void StopFollowingCurrentEntity();
+    void ResumeFollowingCurrentEntity();
     QRectF CurrentViewRect;
     QRectF TargetViewRect;
 
@@ -46,8 +52,11 @@ signals:
 public slots:
     void UpdateView();
     void SetCurrentView(QRectF ViewRect);
+    void SetCurrentView(QPointF Position);
+    void CenterOnPoint(QPointF Position);
     void MoveToView(QRectF TargetViewRect);
     void CenterTo(QPointF TargetViewCenter);
+    void CenterOnEntity();
 
 private slots:
     void StartPan();
@@ -64,6 +73,11 @@ private:
     double CurrentYDistanceToTarget = 0;
     double CurrentPanSpeedX = 0;
     double CurrentPanSpeedY = 0;
+
+    Entity *FollowingEntity = nullptr;
+
+    int CurrentSceneWidth = DEFAULT_SCENE_WIDTH;
+    int CurrentSceneHeight = DEFAULT_SCENE_HEIGHT;
 };
 
 #endif // CAMERA_H
